@@ -1,0 +1,58 @@
+# --------------------------------------
+# Secrets & credentials (NEVER commit)
+# --------------------------------------
+.env
+.env.*
+*.key
+*.secret
+*.token
+
+# --------------------------------------
+# Local container artifacts
+# --------------------------------------
+Containerfile
+Dockerfile
+*.log
+
+# --------------------------------------
+# Claude Code / AI tooling
+# --------------------------------------
+.claude/
+claude-cache/
+claude.log
+
+# --------------------------------------
+# Podman / Docker local state
+# --------------------------------------
+.podman/
+podman-compose.yaml
+podman-compose.yml
+
+# --------------------------------------
+# Build / temp files
+# --------------------------------------
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# --------------------------------------
+# OS / editor junk
+# --------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+.vscode/
+.idea/
+*.iml
+
+# --------------------------------------
+# Node / Python (just in case)
+# --------------------------------------
+node_modules/
+__pycache__/
+*.pyc
+
