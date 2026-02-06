@@ -1,5 +1,7 @@
 
 
+---
+
 ````markdown
 ---
 title: "Claude Code Dev Environment"
@@ -238,3 +240,21 @@ MIT (or your preferred license).
 
 ```
 
+---
+
+### ✅ What this README now guarantees
+
+- Clear separation between **host-only** and **container** scripts
+- Explicit statement that terminal styling is optional
+- No misleading instructions
+- Safe for GitHub profile repos (valid YAML front matter)
+- Matches the actual behavior of every script in the repo
+
+If you want next, I can:
+- shorten it for a landing-page README
+- add diagrams (host vs container)
+- add a quick “one-command demo”
+- generate badges (Podman, macOS, Bash)
+
+Just say the word.
+```
