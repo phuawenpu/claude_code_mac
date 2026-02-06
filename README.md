@@ -1,8 +1,3 @@
-
-
----
-
-````markdown
 ---
 title: "Claude Code Dev Environment"
 description: "A Podman-based Claude Code development environment for macOS"
@@ -39,7 +34,7 @@ This repository provides a small set of Bash scripts to set up Podman correctly,
 ├── Containerfile                     # Generated at build time (gitignored)
 ├── .gitignore
 └── README.md
-````
+
 
 ---
 
