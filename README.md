@@ -1,4 +1,9 @@
 ---
+title: "Claude Code Dev Environment"
+description: "Podman-based Claude Code development environment for macOS"
+---
+
+---
 
 # Claude Code Dev Environment (Podman · macOS)
 
