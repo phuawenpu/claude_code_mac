@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -e
 
+# -------------------------------------------------
+# Guard: refuse to run inside a container
+# -------------------------------------------------
+
+# Detect container environment (Podman / Docker / OCI)
+if [ -f /proc/1/cgroup ] && grep -E '(docker|podman|container)' /proc/1/cgroup >/dev/null 2>&1; then
+  echo "❌ This script must NOT be run inside a container."
+  echo "👉 setup_terminal_style.sh configures your HOST terminal only."
+  echo "👉 Exit the container and run it on macOS."
+  exit 1
+fi
+
+# Detect non-macOS environment
+if ! command -v sw_vers >/dev/null 2>&1; then
+  echo "❌ This script is intended to run on macOS only."
+  echo "👉 Detected a non-macOS environment."
+  exit 1
+fi
+
+set -e
+
 echo "🌌 Aurora DX Bash Terminal Setup (macOS)"
 echo
 

@@ -1,36 +1,34 @@
----
-title: "Claude Code Dev Environment"
-description: "Podman-based Claude Code development environment for macOS"
+Got it. Below is a **clean, corrected, and fully consistent rewrite of `README.md`**, aligned exactly with the **current scripts**, their behavior, and the decisions we made (host-only terminal styling, container guards, Podman workflow, Bash 3 compatibility, etc.).
+
+This version is **safe for a public repo**, avoids GitHub YAML parsing issues, and clearly explains what is optional vs required.
+
+You can replace your `README.md` entirely with this.
+
 ---
 
+````markdown
+---
+title: "Claude Code Dev Environment"
+description: "A Podman-based Claude Code development environment for macOS"
 ---
 
 # Claude Code Dev Environment (Podman · macOS)
 
 A lightweight, reproducible development environment for **Claude Code** using **Podman on macOS**.
 
-This repo provides a small set of Bash scripts to:
-
-* Set up Podman correctly on macOS (with safe resource defaults)
-* Build a Claude Code–ready container image
-* Enter or re-enter running containers interactively
-* Keep your **workspace on the host**, not trapped in the container
-* Avoid Docker Desktop entirely
-
-No secrets are written to disk.
-Your Anthropic API key is entered interactively and scoped to the container session.
+This repository provides a small set of Bash scripts to set up Podman correctly, build a Claude Code–ready container image, and interactively enter or re-enter containers — **without Docker Desktop** and without storing secrets on disk.
 
 ---
 
-## ✨ What you get
+## ✨ Features
 
-* 🐳 **Podman-based** dev environment (no Docker Desktop)
-* 🤖 **Claude Code** installed inside the container
-* 📁 **Host-mounted workspace** (`/workspace` ↔ current directory)
-* 🔐 Secure, interactive API key handling
-* 🔁 Scripts are **idempotent** (safe to re-run)
-* 🧭 Interactive container selection when multiple containers are running
-* 💻 Compatible with **macOS default Bash (3.2)**
+- 🐳 **Podman-based** (no Docker Desktop required)
+- 🤖 **Claude Code** installed inside a disposable container
+- 📁 **Host-mounted workspace** (`/workspace` ↔ current directory)
+- 🔐 Secure, interactive Anthropic API key input (never written to disk)
+- 🔁 Scripts are **idempotent** (safe to re-run)
+- 🧭 Interactive container selection when multiple containers are running
+- 💻 Compatible with **macOS default Bash (3.2)**
 
 ---
 
@@ -38,14 +36,14 @@ Your Anthropic API key is entered interactively and scoped to the container sess
 
 ```text
 .
-├── setup_podman.sh            # One-time Podman + VM setup (macOS)
-├── setup_claudecode.sh        # Build image & enter Claude container
-├── enter-claude.sh            # Re-enter or start Claude containers
-├── Containerfile              # Generated container definition (ignored in git)
-├── setup_terminal_style.sh    # (Optional) Aurora DX terminal styling
+├── setup_podman.sh                    # One-time Podman + VM setup (macOS)
+├── setup_claudecode.sh                # Build image & enter Claude container
+├── enter-claude.sh                   # Re-enter or start Claude containers
+├── run_in_host_setup_terminal_style.sh# OPTIONAL host-only terminal styling
+├── Containerfile                     # Generated at build time (gitignored)
 ├── .gitignore
 └── README.md
-```
+````
 
 ---
 
@@ -62,7 +60,8 @@ Your Anthropic API key is entered interactively and scoped to the container sess
 
 ### 2️⃣ Set up Podman (one time)
 
-This installs Podman and configures the Podman VM with enough resources to run Claude Code reliably.
+This installs Podman and configures the Podman virtual machine with enough
+resources to run Claude Code reliably.
 
 ```bash
 chmod +x setup_podman.sh
@@ -71,10 +70,12 @@ chmod +x setup_podman.sh
 
 What this does:
 
-* Installs Podman if needed
-* Creates (or reuses) the Podman machine
+* Installs Podman (if missing)
+* Creates or reuses `podman-machine-default`
 * Ensures sufficient memory, CPU, and disk
-* Starts the Podman VM if it isn’t running
+* Starts the Podman machine if needed
+
+You normally only run this once.
 
 ---
 
@@ -87,9 +88,13 @@ chmod +x setup_claudecode.sh
 ./setup_claudecode.sh
 ```
 
-You will be prompted to enter your **Anthropic API key** securely.
+You will be prompted to enter your **Anthropic API key** securely:
 
-After this completes, you will be dropped **inside the container**, in:
+* Input is hidden
+* The key is not saved to disk
+* The key exists only for the lifetime of the container
+
+After setup completes, you will be dropped **inside the container** in:
 
 ```text
 /workspace
@@ -97,7 +102,7 @@ After this completes, you will be dropped **inside the container**, in:
 
 which maps directly to the directory you ran the script from.
 
-Inside the container, run:
+Inside the container, start Claude Code:
 
 ```bash
 claude
@@ -117,10 +122,10 @@ chmod +x enter-claude.sh
 This script will:
 
 * Detect running containers
-* Let you **choose which one to enter**
-* Or, if none are running, offer to start a new Claude Code container
+* Let you **choose which container to enter**
+* If none are running, offer to start a new Claude Code container
 
-No rebuilding unless you explicitly run the setup script again.
+No rebuilding unless you explicitly re-run the setup script.
 
 ---
 
@@ -140,6 +145,9 @@ This means:
 * ❌ No code is stored inside the container image
 * 🔒 The container cannot access other host directories
 
+Only tooling lives in the container.
+Your source code always stays on the host.
+
 ---
 
 ## 🔐 Security notes
@@ -151,20 +159,36 @@ This means:
   * Is not stored in `.env` files
   * Exists only for the lifetime of the container
 * Containers run as a non-root user (`developer`)
-* The container filesystem is disposable
+* Containers are disposable (`--rm`)
 
 ---
 
-## 🎨 Optional: Aurora DX terminal styling
+## 🎨 Optional: Aurora DX terminal styling (HOST ONLY)
 
-If you want a themed terminal setup (Bash + Starship + iTerm2):
+The script:
 
 ```bash
-chmod +x setup_terminal_style.sh
-./setup_terminal_style.sh
+run_in_host_setup_terminal_style.sh
 ```
 
-This is **completely optional** and independent from Claude Code or Podman.
+is **completely optional**.
+
+It customizes your **host terminal only**, including:
+
+* Bash (Homebrew Bash ≥ 4)
+* Starship prompt
+* iTerm2 profile (Aurora DX theme, transparency, blur)
+
+It **does NOT** affect:
+
+* Podman
+* Containers
+* Claude Code
+* Your workspace
+
+The script includes a guard and will **refuse to run inside a container**.
+
+Run it only on macOS if you want terminal aesthetics.
 
 ---
 
@@ -180,16 +204,17 @@ which claude
 # /home/developer/.local/bin/claude
 
 hostname
-# (should NOT be your Mac hostname)
+# should NOT be your Mac hostname
 ```
 
 ---
 
 ## 🧹 Cleanup
 
-Containers started with these scripts use `--rm`, so they are removed automatically on exit.
+Containers started with these scripts use `--rm` and are removed automatically
+on exit.
 
-To stop the Podman VM:
+To stop the Podman virtual machine:
 
 ```bash
 podman machine stop
@@ -209,6 +234,13 @@ On your host machine. The container only provides tooling.
 Yes. Run the scripts from different directories.
 
 **Does this work on Linux?**
-The container pieces do, but the Podman VM setup scripts are macOS-specific.
+The container setup does, but the Podman VM scripts are macOS-specific.
 
 ---
+
+## 📜 License
+
+MIT (or your preferred license).
+
+```
+
