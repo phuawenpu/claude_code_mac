@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🤖 Claude Code Podman Setup (macOS)"
+echo "🤖 Claude Code Podman Setup (macOS) - OAuth Edition"
 echo
 
 # -------------------------------------------------
@@ -31,7 +31,7 @@ else
 fi
 
 # -------------------------------------------------
-# Ensure Podman machine exists (inspect is authoritative)
+# Ensure Podman machine exists
 # -------------------------------------------------
 if podman machine inspect "$MACHINE_NAME" >/dev/null 2>&1; then
   echo "✅ Podman machine exists: $MACHINE_NAME"
@@ -45,7 +45,7 @@ else
 fi
 
 # -------------------------------------------------
-# Inspect machine state (version-safe)
+# Inspect machine state
 # -------------------------------------------------
 STATE="$(podman machine inspect "$MACHINE_NAME" --format '{{.State}}' 2>/dev/null || echo unknown)"
 MEMORY_MB="$(podman machine inspect "$MACHINE_NAME" --format '{{.Resources.Memory}}')"
@@ -54,10 +54,10 @@ DISK_GB="$(podman machine inspect "$MACHINE_NAME" --format '{{.Resources.DiskSiz
 
 echo
 echo "🔍 Podman machine status:"
-echo "   • State:   $STATE"
-echo "   • Memory:  ${MEMORY_MB} MB"
-echo "   • CPUs:    ${CPUS}"
-echo "   • Disk:    ${DISK_GB} GB"
+echo "    • State:   $STATE"
+echo "    • Memory:  ${MEMORY_MB} MB"
+echo "    • CPUs:    ${CPUS}"
+echo "    • Disk:    ${DISK_GB} GB"
 echo
 
 # -------------------------------------------------
@@ -96,28 +96,7 @@ else
 fi
 
 # -------------------------------------------------
-# Prompt for Anthropic API key (TTY-safe, clear UX)
-# -------------------------------------------------
-echo
-echo "🔐 Anthropic API Key"
-echo "• Type or paste your key"
-echo "• Input is hidden"
-echo "• Press ENTER when finished"
-echo
-
-printf "Enter ANTHROPIC_API_KEY → " > /dev/tty
-IFS= read -rs ANTHROPIC_API_KEY < /dev/tty
-printf "\n" > /dev/tty
-
-if [ -z "$ANTHROPIC_API_KEY" ]; then
-  echo "❌ No API key entered. Aborting."
-  exit 1
-fi
-
-echo "✅ API key received."
-
-# -------------------------------------------------
-# Write Containerfile (Claude installed as developer)
+# Write Containerfile
 # -------------------------------------------------
 echo
 echo "📝 Writing Containerfile..."
@@ -134,7 +113,7 @@ RUN apk add --no-cache \
     libstdc++ \
     ripgrep
 
-# Create user FIRST
+# Create user
 RUN adduser -D developer
 USER developer
 
@@ -157,19 +136,17 @@ echo "🐳 Building Claude Code image..."
 podman build -t "$IMAGE_NAME" .
 
 # -------------------------------------------------
-# Run container (FORCE interactive shell)
+# Run container
 # -------------------------------------------------
 echo
 echo "🚀 Entering Claude Code container"
 echo "👉 You are now INSIDE the container"
-echo "👉 Run: claude"
+echo "👉 Run 'claude' and follow the OAuth URL to login"
 echo
 
 podman run --rm -it \
   --name "$CONTAINER_NAME" \
-  -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
   -v "$(pwd):/workspace:Z" \
   -w /workspace \
   "$IMAGE_NAME" \
   bash
-
