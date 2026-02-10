@@ -208,6 +208,3 @@ The container setup does, but the Podman VM scripts are macOS-specific.
 
 ---
 
-
-
-```
