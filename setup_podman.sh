@@ -13,6 +13,36 @@ MIN_CPUS=4
 MIN_DISK_GB=50
 
 # ----------------------------
+# Optional Setup Check
+# ----------------------------
+if command -v podman >/dev/null 2>&1; then
+  echo "✅ Podman is already installed on this machine."
+  read -p "❓ Do you want to run the machine configuration and resize steps? [y/N] " -r RUN_SETUP
+  
+  # If the user enters anything other than 'y' or 'Y', skip the setup
+  if [[ ! "$RUN_SETUP" =~ ^[Yy]$ ]]; then
+    echo "⏭️  Skipping Podman configuration..."
+    
+    # Check if the machine exists so we can at least ensure it's running
+    if podman machine list --format "{{.Name}}" | grep -q "^${MACHINE_NAME}$"; then
+      if ! podman machine list --format "{{.Name}} {{.Running}}" | grep -q "^${MACHINE_NAME} true"; then
+        echo "▶️  Starting existing Podman machine..."
+        podman machine start "$MACHINE_NAME"
+      else
+        echo "✅ Podman machine is already running."
+      fi
+    else
+      echo "⚠️  Note: Podman is installed, but the '${MACHINE_NAME}' machine does not exist."
+      echo "   Please re-run this script and answer 'y' to configure it, or initialize it manually."
+    fi
+    
+    echo
+    echo "🎉 Done!"
+    exit 0
+  fi
+fi
+
+# ----------------------------
 # Ensure Homebrew
 # ----------------------------
 if ! command -v brew >/dev/null 2>&1; then
@@ -95,4 +125,4 @@ podman machine start "$MACHINE_NAME"
 # Final validation
 # ----------------------------
 echo
-
+echo "🎉 Podman is ready to use!"
